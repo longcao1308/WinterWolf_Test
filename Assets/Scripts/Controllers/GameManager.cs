@@ -83,7 +83,8 @@ public class GameManager : MonoBehaviour
 
     public void LoadLevel(eLevelMode mode)
     {
-        m_boardController = new GameObject("BoardController").AddComponent<BoardController>();
+        if (!m_boardController)
+            m_boardController = new GameObject("BoardController").AddComponent<BoardController>();
         m_boardController.StartGame(this, m_gameSettings);
 
         if (mode == eLevelMode.MOVES)
@@ -112,8 +113,8 @@ public class GameManager : MonoBehaviour
         if (m_boardController)
         {
             m_boardController.Clear();
-            Destroy(m_boardController.gameObject);
-            m_boardController = null;
+            //Destroy(m_boardController.gameObject);
+            //m_boardController = null;
         }
     }
 

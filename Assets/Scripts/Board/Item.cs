@@ -21,7 +21,8 @@ public class Item
             GameObject prefab = Resources.Load<GameObject>(prefabname);
             if (prefab)
             {
-                View = GameObject.Instantiate(prefab).transform;
+                //View = GameObject.Instantiate(prefab).transform;
+                View = SimplePooler.instance.Spawn(prefab.name, prefab).transform;
             }
         }
     }
@@ -101,7 +102,8 @@ public class Item
             View.DOScale(0.1f, 0.1f).OnComplete(
                 () =>
                 {
-                    GameObject.Destroy(View.gameObject);
+                    //GameObject.Destroy(View.gameObject);
+                    SimplePooler.instance.Despawn(View.gameObject.name, View.gameObject);
                     View = null;
                 }
                 );
@@ -132,7 +134,8 @@ public class Item
 
         if (View)
         {
-            GameObject.Destroy(View.gameObject);
+            View.gameObject.SetActive(false);
+            //GameObject.Destroy(View.gameObject);
             View = null;
         }
     }

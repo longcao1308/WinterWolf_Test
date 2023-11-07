@@ -43,6 +43,8 @@ public class BoardController : MonoBehaviour
 
         m_board = new Board(this.transform, gameSettings);
 
+        m_gameOver = false;
+
         Fill();
     }
 
@@ -224,7 +226,7 @@ public class BoardController : MonoBehaviour
             matches[i].ExplodeItem();
         }
 
-        if(matches.Count > m_gameSettings.MatchesMin)
+        if (matches.Count > m_gameSettings.MatchesMin)
         {
             m_board.ConvertNormalToBonus(matches, cellEnd);
         }
@@ -282,6 +284,7 @@ public class BoardController : MonoBehaviour
     internal void Clear()
     {
         m_board.Clear();
+        m_gameManager.StateChangedAction -= OnGameStateChange;
     }
 
     private void ShowHint()
