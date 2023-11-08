@@ -14,6 +14,8 @@ public class GameManager : MonoBehaviour
         MOVES
     }
 
+    private eLevelMode _currentLevelMode;
+
     public enum eStateGame
     {
         SETUP,
@@ -101,6 +103,7 @@ public class GameManager : MonoBehaviour
         m_levelCondition.ConditionCompleteEvent += GameOver;
 
         State = eStateGame.GAME_STARTED;
+        _currentLevelMode = mode;
     }
 
     public void GameOver()
@@ -113,9 +116,16 @@ public class GameManager : MonoBehaviour
         if (m_boardController)
         {
             m_boardController.Clear();
+            Destroy(m_levelCondition);
             //Destroy(m_boardController.gameObject);
             //m_boardController = null;
         }
+    }
+    public void RestartLevel()
+    {
+        DOTween.KillAll();
+        ClearLevel();
+        LoadLevel(_currentLevelMode);
     }
 
     private IEnumerator WaitBoardController()
