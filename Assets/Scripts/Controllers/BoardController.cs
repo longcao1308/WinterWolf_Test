@@ -221,6 +221,8 @@ public class BoardController : MonoBehaviour
 
     private void CollapseMatches(List<Cell> matches, Cell cellEnd)
     {
+        m_board.RemoveMatchesItemTypes(matches);
+
         for (int i = 0; i < matches.Count; i++)
         {
             matches[i].ExplodeItem();

@@ -25,6 +25,9 @@ public class Board
 
     private int m_matchMin;
 
+    // Dictionary để lưu số lần mỗi loại xuất hiện trong board
+    private Dictionary<NormalItem.eNormalType, int> _itemTypeCount;
+
     public Board(Transform transform, GameSettings gameSettings)
     {
         m_root = transform;
@@ -35,6 +38,14 @@ public class Board
         this.boardSizeY = gameSettings.BoardSizeY;
 
         m_cells = new Cell[boardSizeX, boardSizeY];
+
+        _itemTypeCount = new Dictionary<NormalItem.eNormalType, int>();
+        Array itemTypes = Enum.GetValues(typeof(NormalItem.eNormalType));
+        foreach (NormalItem.eNormalType type in itemTypes)
+        {
+            _itemTypeCount.Add(type, 0);
+        }
+            
 
         CreateBoard();
     }
@@ -106,6 +117,8 @@ public class Board
 
                 cell.Assign(item);
                 cell.ApplyItemPosition(false);
+
+                _itemTypeCount[item.ItemType] += 1;
             }
         }
     }
@@ -147,7 +160,10 @@ public class Board
 
                 NormalItem item = new NormalItem();
 
-                item.SetType(Utils.GetRandomNormalType());
+                NormalItem.eNormalType[] neighborTypes = GetNeighborItemTypes(cell).ToArray();
+                NormalItem.eNormalType prioritizeType = GetPrioritizeType();
+
+                item.SetType(Utils.GetRandomNormalTypeExceptWithPriority(neighborTypes, prioritizeType));
                 item.SetView();
                 item.SetViewRoot(m_root);
 
@@ -155,6 +171,55 @@ public class Board
                 cell.ApplyItemPosition(true);
             }
         }
+    }
+
+    // Hàm lấy loại của tất cả các item xung quanh
+    private List<NormalItem.eNormalType> GetNeighborItemTypes(Cell cell)
+    {
+        List<NormalItem.eNormalType> result = new List<NormalItem.eNormalType>();
+        NormalItem neighborItem;
+        if (cell.NeighbourBottom)
+        {
+            neighborItem = cell.NeighbourBottom.Item as NormalItem;
+            if (neighborItem != null)
+                result.Add(neighborItem.ItemType);
+        }
+        if (cell.NeighbourLeft)
+        {
+            neighborItem = cell.NeighbourLeft.Item as NormalItem;
+            if (neighborItem != null)
+                result.Add(neighborItem.ItemType);
+        }
+        if (cell.NeighbourRight)
+        {
+            neighborItem = cell.NeighbourRight.Item as NormalItem;
+            if (neighborItem != null)
+                result.Add(neighborItem.ItemType);
+        }
+        if (cell.NeighbourUp)
+        {
+            neighborItem = cell.NeighbourUp.Item as NormalItem;
+            if (neighborItem != null)
+                result.Add(neighborItem.ItemType);
+        }
+
+        return result;
+    }
+
+    // Hàm lấy loại ưu tiên bằng cách tìm loại có value bé nhất trong dictionary
+    private NormalItem.eNormalType GetPrioritizeType()
+    {
+        NormalItem.eNormalType result = NormalItem.eNormalType.TYPE_ONE;
+        int lowest = _itemTypeCount[result];
+        foreach(KeyValuePair<NormalItem.eNormalType, int> type in _itemTypeCount)
+        {
+            if (type.Value < lowest)
+            {
+                lowest = type.Value;
+                result = type.Key;
+            }
+        }
+        return result;
     }
 
     internal void ExplodeAllItems()
@@ -350,7 +415,7 @@ public class Board
         var dir = GetMatchDirection(matches);
 
         var bonus = matches.Where(x => x.Item is BonusItem).FirstOrDefault();
-        if(bonus == null)
+        if (bonus == null)
         {
             return matches;
         }
@@ -673,6 +738,18 @@ public class Board
                 //GameObject.Destroy(cell.gameObject);
                 m_cells[x, y] = null;
             }
+        }
+    }
+
+    // Hàm để tính toán lại số lượng loại xuất hiện trong board bằng cách trừ đi những loại đã match
+    public void RemoveMatchesItemTypes(List<Cell> matches)
+    {
+        foreach(Cell cell in matches)
+        {
+            NormalItem item = cell.Item as NormalItem;
+            if (item == null)
+                return;
+            _itemTypeCount[item.ItemType] -= 1;
         }
     }
 }

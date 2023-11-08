@@ -24,4 +24,13 @@ public class Utils
 
         return result;
     }
+
+    // Hàm để lấy loại random với loại trừ và có loại ưu tiên
+    public static NormalItem.eNormalType GetRandomNormalTypeExceptWithPriority(NormalItem.eNormalType[] exceptionTypes, NormalItem.eNormalType priority)
+    {
+        if (!exceptionTypes.Contains(priority))
+            return priority;
+
+        return GetRandomNormalTypeExcept(exceptionTypes);
+    }
 }
