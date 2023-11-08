@@ -23,6 +23,14 @@ public class Item
             {
                 //View = GameObject.Instantiate(prefab).transform;
                 View = SimplePooler.instance.Spawn(prefab.name, prefab).transform;
+
+                CharacterSkin skin = Resources.Load<CharacterSkin>(Constants.CHARACTER_SKIN_PATH);
+                if (skin)
+                {
+                    Sprite sprite = skin.atlas.GetSprite(prefab.name);
+                    if (sprite)
+                        View.gameObject.GetComponent<SpriteRenderer>().sprite = sprite;
+                }
             }
         }
     }
